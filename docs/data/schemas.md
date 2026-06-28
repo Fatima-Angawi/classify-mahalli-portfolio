@@ -159,18 +159,68 @@ Each detection written by the optional persistence layer:
 
 ---
 
-## Training / evaluation CSV
-
-`test_data.csv` (1,130 rows) and `training_data.csv` (556,720 rows):
+## Training / evaluation DataFrame
 
 | Column | Type | Description |
 |---|---|---|
 | `id` | int | Product ID |
 | `name` | str | Product name (Arabic / mixed) |
 | `description` | str | HTML or plain text description |
-| `spam_category` | str | Category from labeling pipeline (`restricted`, `iptv`, `digital_ambiguous`, …) |
+| `image_url` | str | Product image URL |
+| `store_id` | int | Salla store identifier |
+| `brand` | str | Brand name |
+| `custom_id` | str | Merchant-assigned custom ID |
+| `label` | int | Binary spam label (1 = spam, 0 = not spam) |
+| `model_used` | str | Which model produced this row's embedding |
+| `image_embedding` | list[float] | Image embedding vector (SigLIP) |
+| `image_embedding_dim` | int | Dimensionality of image embedding |
+| `has_image` | bool | Whether a product image was available |
+| `image_model_x` / `image_model_y` | str | Image encoder identifier |
+| `text_embedding` | list[float] | Text embedding vector (Harrier) |
+| `text_embedding_dim` | int | Dimensionality of text embedding |
+| `text_model` | str | Text encoder identifier |
 | `llm_label` | str | Ground-truth label from GPT-4.1-mini (`spam` / `not_spam`) |
-| `confidence` | float | LLM confidence score |
-| `evidence` | str | Trigger span quoted by the LLM |
+| `text_cluster` | int | KMeans cluster ID on text embeddings |
+| `image_cluster` | int | KMeans cluster ID on image embeddings |
+| `store_id_x_x` / `store_id_y_x` / … | int | Store ID join artifacts from merging product and store scores tables |
+
+---
+
+## Store scores table
+
+One row per store. Used to flag suspicious stores and enrich product-level features.
+
+| Column | Type | Description |
+|---|---|---|
+| `store_id` | int | Salla store identifier |
+| `total_products` | int | Total product listings |
+| `spam_count` | int | Number of spam listings |
+| `non_spam_count` | int | `total_products - spam_count` |
+| `spam_rate` | float | `spam_count / total_products × 100` |
+| `is_suspicious` | bool | `spam_rate ≥ 40% AND spam_count ≥ 10 AND total_products ≥ 20` |
+| `store_score` | float | `spam_rate × spam_count` — composite risk score |
+
+Sorted: suspicious stores first, then by `store_score` descending.
+
+---
+
+## Store context enrichment on product records
+
+Each product row is enriched with two columns after joining the store scores:
+
+| Column | Type | Values |
+|---|---|---|
+| `is_suspicious_store` | bool | Whether the product's store is flagged |
+| `store_context` | str | `"spam_from_suspicious_store"` / `"spam_from_clean_store"` / `"normal"` |
+
+```
+label == spam AND is_suspicious_store      →  "spam_from_suspicious_store"
+label == spam AND NOT is_suspicious_store  →  "spam_from_clean_store"
+otherwise                                  →  "normal"
+```
+
+`store_context` is used as a feature signal — spam from a store with a high
+historical spam rate is a stronger signal than an isolated listing from an
+otherwise clean store.
 
 `training_data.csv` columns: `name`, `description`, `spam_status`, `store_id`.

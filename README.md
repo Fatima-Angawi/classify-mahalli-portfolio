@@ -34,7 +34,7 @@ into their ML platform.
 | [Setup & Usage](docs/setup/setup.md) | How to run the full stack locally with Docker Compose |
 | [Data Schemas](docs/data/schemas.md) | Every data contract: Kafka messages, Pydantic models, output formats |
 | [Results & Evaluation](docs/results/results.md) | Model benchmarks, fusion strategy comparison, error analysis |
-| [Design Decisions](docs/decisions/INDEX.md) | 8 decisions covering model selection, pipeline architecture, and policy choices |
+| [Design Decisions](docs/decisions/INDEX.md) | 9 decisions covering model selection, pipeline architecture, and policy choices |
 
 ---
 

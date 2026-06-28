@@ -13,3 +13,4 @@ documented with the context, alternatives considered, and trade-offs accepted.
 | [006](006-decision-thresholds.md) | Decision thresholds | Sweep + calibration targeting a narrow HUMAN_REVIEW band |
 | [007](007-rule-engine-disabled.md) | Rule engine disabled | Salla chose fully automated ML over maintained keyword rules |
 | [008](008-mageai-pipeline.md) | Mage.ai pipeline for production | Kafka built first; Salla requested mage.ai to fit their production ML platform |
+| [009](009-store-scoring.md) | Store-level spam scoring as a product feature | Per-store spam rate flags suspicious stores; store context enriches each listing before classification |
