@@ -2,7 +2,7 @@
 
 ## What the system does
 
-classify_mahalli is a real-time product-listing moderation pipeline for Salla. It
+classify_mahalli is a real-time product-listing moderation pipeline. It
 monitors product updates from a MySQL database via Debezium Change Data Capture,
 filters for listings whose description has changed, classifies them as spam or
 legitimate using a multimodal XGBoost model, and publishes a three-tier decision —
